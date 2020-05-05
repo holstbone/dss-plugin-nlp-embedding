@@ -1,6 +1,6 @@
 {
     "id": "sentence-embedding",
-    "version": "1.2.0",
+    "version": "1.2.1",
     "meta": {
         "label": "Sentence Embedding",
         "description": "Compute numerical representations for sentences so that they can be fed to ML algorithms.",
