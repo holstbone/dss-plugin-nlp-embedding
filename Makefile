@@ -1,4 +1,4 @@
-PLUGIN_VERSION=1.2.1
+PLUGIN_VERSION=1.2.2
 PLUGIN_ID=sentence-embedding
 
 plugin:
