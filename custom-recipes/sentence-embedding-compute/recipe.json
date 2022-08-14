@@ -1,7 +1,7 @@
 {
     "meta": {
         "label": "Compute sentence embeddings",
-        "description": "Compute numerical representations for sentences so that they can be fed to ML algorithms. The sentence embeddings are obtained using pre-trained word vectors that should have be downloaded before running the recipe.",
+        "description": "Compute numerical representations for sentences so that they can be fed to ML algorithms. The sentence embeddings are obtained using pre-trained word vectors that should have been downloaded before running the recipe.",
         "icon": "icon-table"
     },
     "kind": "PYTHON",
