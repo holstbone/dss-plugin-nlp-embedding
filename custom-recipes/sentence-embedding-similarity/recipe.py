@@ -108,7 +108,7 @@ elif distance == "wasserstein":
 
 
 # Computing distances between all couples of sentences
-distances = np.fromiter(list(map(lambda x: distance_function(x[0],x[1]) if (np.sum(np.isnan(x[0]))==0 and np.sum(np.isnan(x[1]))==0) else np.nan ,zip(*embeddings_list))) , float)
+distances = np.fromiter(list(map(lambda x: distance_function(x[0], x[1]) if (np.sum(np.isnan(x[0])) == 0 and np.sum(np.isnan(x[1])) == 0) else np.nan, zip(*embeddings_list))), float)
    
 logger.info("Computed similarity scores.")
 
