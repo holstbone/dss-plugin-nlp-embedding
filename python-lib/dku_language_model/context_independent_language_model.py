@@ -113,7 +113,11 @@ class FasttextModel(ContextIndependentLanguageModel):
     @staticmethod
     def get_model_name():
         return 'fastText pretrained model'
-        
+
+    @staticmethod
+    def get_shape():
+        return 300
+
     def load_model(self):
         logger.info('Loading fastText model...')
         word2idx = {}
@@ -126,10 +130,12 @@ class FasttextModel(ContextIndependentLanguageModel):
                     logger.info("Loaded {} word embeddings".format(i))
                 split = line.strip().split(' ')
                 word, vector = split[0], split[1:]
-                word2idx[word] = i
-
                 embedding = np.array(vector).astype(float)
+                if embedding.shape[0] != self.get_shape():
+                    logger.info("Skipping corrupted embedding of shape {}".format(embedding.shape))
+                    continue
                 embedding_matrix.append(embedding)
+                word2idx[word] = len(embedding_matrix) - 1
         logger.info('Done')
         self.embedding_matrix = np.array(embedding_matrix)
         self.word2idx = word2idx
