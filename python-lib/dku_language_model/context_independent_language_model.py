@@ -3,8 +3,8 @@ import numpy as np
 from collections import Counter
 from gensim.models import KeyedVectors
 from sklearn.decomposition import TruncatedSVD
-from abstract_language_model import AbstractLanguageModel
-from language_model_utils import clean_text
+from dku_language_model.abstract_language_model import AbstractLanguageModel
+from dku_language_model.language_model_utils import clean_text
 import logging
 logger = logging.getLogger(__name__)
 
@@ -29,8 +29,8 @@ class ContextIndependentLanguageModel(AbstractLanguageModel):
             return avg_embedding.tolist()
         
     def get_sentence_embedding(self, texts):
-        cleaned_texts = map(clean_text, texts)
-        embeddings = map(self.compute_average_embedding, cleaned_texts)
+        cleaned_texts = list(map(clean_text, texts))
+        embeddings = list(map(self.compute_average_embedding, cleaned_texts))
         return embeddings
         
     def get_weighted_sentence_word_vectors(self, text, weights):
@@ -66,7 +66,7 @@ class ContextIndependentLanguageModel(AbstractLanguageModel):
         return final_embeddings
 
     def get_weighted_sentence_embedding(self, texts, smoothing_parameter, npc):
-        cleaned_texts = map(clean_text, texts)
+        cleaned_texts = list(map(clean_text, texts))
 
         # Compute word weights
         word_weights = Counter()
@@ -80,10 +80,10 @@ class ContextIndependentLanguageModel(AbstractLanguageModel):
 
         # Compute SIF
         logger.info("Computing weighted average embeddings...")
-        raw_embeddings = np.array(map(lambda s: self.compute_weighted_average_embedding(s, word_weights), cleaned_texts))
+        raw_embeddings = np.array(list(map(lambda s: self.compute_weighted_average_embedding(s, word_weights), cleaned_texts)))
 
         # Remove empty sentences and save their indecies
-        is_void = np.array(map(lambda x: x.shape == (), raw_embeddings))
+        is_void = np.array(list(map(lambda x: x.shape == (), raw_embeddings)))
         embeddings_without_void = [x for x,y in zip(raw_embeddings,is_void) if y==0]
 
         logger.info("Removing vectors principal component...")
@@ -113,7 +113,11 @@ class FasttextModel(ContextIndependentLanguageModel):
     @staticmethod
     def get_model_name():
         return 'fastText pretrained model'
-        
+
+    @staticmethod
+    def get_shape():
+        return 300
+
     def load_model(self):
         logger.info('Loading fastText model...')
         word2idx = {}
@@ -126,10 +130,12 @@ class FasttextModel(ContextIndependentLanguageModel):
                     logger.info("Loaded {} word embeddings".format(i))
                 split = line.strip().split(' ')
                 word, vector = split[0], split[1:]
-                word2idx[word] = i
-
                 embedding = np.array(vector).astype(float)
+                if embedding.shape[0] != self.get_shape():
+                    logger.info("Skipping corrupted embedding of shape {}".format(embedding.shape))
+                    continue
                 embedding_matrix.append(embedding)
+                word2idx[word] = len(embedding_matrix) - 1
         logger.info('Done')
         self.embedding_matrix = np.array(embedding_matrix)
         self.word2idx = word2idx

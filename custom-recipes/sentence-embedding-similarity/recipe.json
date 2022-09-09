@@ -63,8 +63,8 @@
                     "label": "Cosine Distance"
                 },
                 {
-                    "value": "euclidian",
-                    "label": "Euclidian Distance"
+                    "value": "euclidean",
+                    "label": "Euclidean Distance"
                 },
                 {
                     "value": "absolute",

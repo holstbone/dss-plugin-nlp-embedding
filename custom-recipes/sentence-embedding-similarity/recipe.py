@@ -3,8 +3,6 @@ import dataiku
 from dataiku.customrecipe import *
 from commons import load_pretrained_model
 
-import os
-import json
 import numpy as np
 from scipy.stats import wasserstein_distance
 from scipy.spatial.distance import cosine, euclidean
@@ -98,23 +96,19 @@ logger.info("Computing similarity scores...")
 
 if distance == "cosine":
     distance_function = cosine
-
-elif distance == "euclidian":
+elif distance == "euclidean":
     distance_function = euclidean
-
 elif distance == "absolute":
     def distance_function(x, y):
         x = np.array(x)
         y = np.array(y)
         return np.linalg.norm(x - y, ord=1)
-    
 elif distance == "wasserstein":
     distance_function = wasserstein_distance
 
 
 # Computing distances between all couples of sentences
-#distances = np.fromiter( map(lambda x: distance_function(x[0],x[1]) if (x[0] is not None and x[1] is not None) else None ,zip(*embeddings_list)) , float)
-distances = np.fromiter( map(lambda x: distance_function(x[0],x[1]) if (np.sum(np.isnan(x[0]))==0 and np.sum(np.isnan(x[1]))==0) else np.nan ,zip(*embeddings_list)) , float)
+distances = np.fromiter(list(map(lambda x: distance_function(x[0], x[1]) if (np.sum(np.isnan(x[0])) == 0 and np.sum(np.isnan(x[1])) == 0) else np.nan, zip(*embeddings_list))), float)
    
 logger.info("Computed similarity scores.")
 
