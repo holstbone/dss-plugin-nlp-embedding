@@ -4,5 +4,6 @@ This Dataiku DSS plugin provides a tool for computing numerical sentence represe
 
 Documentation: https://www.dataiku.com/dss/plugins/info/sentence-embedding.html
 
-### Licence
+## Licence
+
 This plugin is distributed under Apache License version 2.0
