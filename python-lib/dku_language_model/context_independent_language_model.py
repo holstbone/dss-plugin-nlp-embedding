@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 import numpy as np
 from collections import Counter
+from distutils.version import LooseVersion
+import gensim
 from gensim.models import KeyedVectors
 from sklearn.decomposition import TruncatedSVD
 from dku_language_model.abstract_language_model import AbstractLanguageModel
@@ -104,7 +106,10 @@ class Word2vecModel(ContextIndependentLanguageModel):
         logger.info('Loading Word2Vec model...')
         model = KeyedVectors.load_word2vec_format(self.model_path, binary=True)
         logger.info('Done')
-        self.word2idx = {w: i for i, w in enumerate(model.index2word)}
+        if LooseVersion(gensim.__version__) < LooseVersion("4.0.0"):
+            self.word2idx = {w: i for i, w in enumerate(model.index2word)}
+        else:
+            self.word2idx = {w: i for i, w in enumerate(model.index_to_key)}
         self.embedding_matrix = model.vectors
 
 
