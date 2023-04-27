@@ -1,11 +1,14 @@
 # -*- coding: utf-8 -*-
 import os
-import tensorflow as tf
+import tensorflow.compat.v1 as tf
 import tensorflow_hub as hub
 from dku_language_model.abstract_language_model import AbstractLanguageModel
 from dku_language_model.language_model_utils import clean_text
 import logging
+
 logger = logging.getLogger(__name__)
+
+tf.disable_v2_behavior()
 
 
 class ContextualLanguageModel(AbstractLanguageModel):

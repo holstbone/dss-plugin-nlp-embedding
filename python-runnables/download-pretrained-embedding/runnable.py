@@ -10,19 +10,6 @@ import requests
 import shutil
 
 
-def download_file_from_google_drive(id, destination):
-    URL = "https://docs.google.com/uc?export=download"
-
-    session = requests.Session()
-    response = session.get(URL, params={'id': id}, stream=True)
-    token = get_confirm_token(response)
-
-    if token:
-        params = {'id': id, 'confirm': token}
-        response = session.get(URL, params=params, stream=True)
-    save_response_content(response, destination)
-
-
 def get_confirm_token(response):
     for key, value in response.cookies.items():
         if key.startswith('download_warning'):
@@ -94,27 +81,25 @@ class MyRunnable(Runnable):
 
         if source == 'word2vec':
             if text_language == 'english':
-                file_id = '0B7XkCwpI5KDYNlNUTTlSS21pQmM'
+                url = "https://github.com/RaRe-Technologies/gensim-data/releases/download/word2vec-google-news-300/word2vec-google-news-300.gz"
             else:
                 raise NotImplementedError("Word2vec vectors are only available for English. Use fastText for other languages.")
 
-            # Download from Google Drive
-            archive_fname = os.path.join(output_folder_path, "GoogleNews-vectors-negative300.bin.gz")
-            download_file_from_google_drive(file_id, archive_fname)
+            archive_name = os.path.basename(url)
+
+            # Download archive
+            r = requests.get(url, stream=True)
+            with output_folder.get_writer(archive_name) as w:
+                for chunk in r.iter_content(chunk_size=100000):
+                    if chunk:
+                        w.write(chunk)
 
             # Decompress in managed folder and rename
-            """
-            decompressed_file = gzip.GzipFile(archive_fname)
-            with open(os.path.join(output_folder_path, "Word2vec_embeddings"), 'wb') as outfile:
-                print('))))))))))) WRITING FILE')
-                outfile.write(decompressed_file.read())
-            """
+            archive_path = os.path.join(output_folder_path, archive_name)
             outfile_path = os.path.join(output_folder_path, "Word2vec_embeddings")
-            with open(outfile_path, 'wb') as f_out, gzip.open(archive_fname, 'rb') as f_in:
+            with open(outfile_path, 'wb') as f_out, gzip.open(archive_path, 'rb') as f_in:
                 shutil.copyfileobj(f_in, f_out)
-
-            os.remove(archive_fname)
-
+            os.remove(archive_path)
 
         elif source == 'fasttext':
             if text_language == 'english':
@@ -166,8 +151,9 @@ class MyRunnable(Runnable):
 
         elif source == 'elmo':
             if text_language == 'english':
-                import tensorflow as tf
+                import tensorflow.compat.v1 as tf
                 import tensorflow_hub as hub
+                tf.disable_v2_behavior()
 
                 elmo_model_dir = os.path.join(output_folder_path, "ELMo")
 
